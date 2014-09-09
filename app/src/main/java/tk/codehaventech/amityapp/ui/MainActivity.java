@@ -1,14 +1,15 @@
 package tk.codehaventech.amityapp.ui;
 
-import android.app.FragmentManager;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,18 +22,21 @@ import android.widget.Toast;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import tk.codehaventech.amityapp.R;
+import tk.codehaventech.amityapp.fragments.TransactionFragment;
 
 /**
  * Created by mrsmith on 9/6/14.
  * Main Activity
  */
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends ActionBarActivity {
 
     @InjectView(R.id.drawer_layout)DrawerLayout mDrawerLayout;
     @InjectView(R.id.left_drawer)ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
+
+    private ActionBar ab;
 
 
     String[] mNavItems = getResources().getStringArray(R.array.nav_items);
@@ -51,8 +55,11 @@ public class MainActivity extends FragmentActivity {
         mDrawerList.setOnItemClickListener(new  DrawerItemClickListener());
 
         // enable ActionBar app icon to behave as action to toggle nav drawer
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-        getActionBar().setHomeButtonEnabled(true);
+
+        ab = getSupportActionBar();
+
+        ab.setHomeButtonEnabled(true);
+        ab.setDisplayShowTitleEnabled(true);
 
         // ActionBarDrawerToggle ties together the the proper interactions
         // between the sliding drawer and the action bar app icon
@@ -64,12 +71,12 @@ public class MainActivity extends FragmentActivity {
                 R.string.drawer_close  /* "close drawer" description for accessibility */
         ) {
             public void onDrawerClosed(View view) {
-                getActionBar().setTitle(mTitle);
+                ab.setTitle(mTitle);
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
 
             public void onDrawerOpened(View drawerView) {
-                getActionBar().setTitle(mDrawerTitle);
+                ab.setTitle(mDrawerTitle);
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
         };
@@ -133,7 +140,7 @@ public class MainActivity extends FragmentActivity {
             case R.id.action_websearch:
                 // create intent to perform web search for this planet
                 Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
-                intent.putExtra(SearchManager.QUERY, getActionBar().getTitle());
+                intent.putExtra(SearchManager.QUERY, ab.getTitle());
                 // catch event that there's no activity to handle intent
                 if (intent.resolveActivity(getPackageManager()) != null) {
                     startActivity(intent);
@@ -149,13 +156,12 @@ public class MainActivity extends FragmentActivity {
     //Fragment transaction
 
     private void selectItem(int position) {
-        // update the main content by replacing fragments
-        Fragment fragment = new PlanetFragment();
-        Bundle args = new Bundle();
-        args.putInt(PlanetFragment.ARG_PLANET_NUMBER, position);
-        fragment.setArguments(args);
 
-        FragmentManager fragmentManager = getFragmentManager();
+        Fragment fragment = new TransactionFragment();
+        Bundle args = new Bundle();
+        args.putInt(TransactionFragment.ARG_MENU_NUMBER, position);
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
         // update selected item and title, then close the drawer
@@ -167,6 +173,6 @@ public class MainActivity extends FragmentActivity {
     @Override
     public void setTitle(CharSequence title) {
         mTitle = title;
-        getActionBar().setTitle(mTitle);
+        ab.setTitle(mTitle);
     }
 }
